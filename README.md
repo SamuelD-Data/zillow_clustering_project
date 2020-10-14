@@ -19,6 +19,17 @@ I will also deliver the following:
 - README.md
     - A markdown file that includes a background summary of Zillow, project goals, data dictionary, reason for selected columns, initial thoughts, initial hypothesis, project plan, steps for how to reproduce the project, and key findings / takeaways.
 
+- A presentation that walks through each step of our project and the notebook as a whole.
+
+- acquire.py
+
+- prep.py
+
+- preprocessing.py
+
+- model.py
+
+
 ## Data Dictionary
 
 
