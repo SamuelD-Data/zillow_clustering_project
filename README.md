@@ -1,4 +1,4 @@
-# The drivers of errors in single unit Zestimates at Zillow
+# The Drivers of Errors in Single Unit Zestimates at Zillow
 
 ## Background
 
