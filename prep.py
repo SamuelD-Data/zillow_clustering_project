@@ -35,10 +35,33 @@ def drop_missing_columns(df):
 
 def drop_selected_columns(df):
     """
-    Accepts dataframe and drops all categorical columns with more than 100 unique values or only 1 unique value.
+    Accepts dataframe and drops all categorical columns with more than 10 unique values or only 1 unique value.
     """
-    df.drop(columns=['id', 'parcelid', 'latitude', 'longitude', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 'regionidcity', 'regionidzip', 'yearbuilt', 'censustractandblock', 'transactiondate', 'assessmentyear', 'unitcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'landtaxvaluedollarcnt', 'structuretaxvaluedollarcnt'] , inplace = True)
+    # dropping columns specified by column name
+    df.drop(columns=['id', 'parcelid', 'latitude', 'longitude', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 'regionidcity', 'regionidzip', 'yearbuilt', 'censustractandblock', 'transactiondate', 'assessmentyear', 'unitcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'landtaxvaluedollarcnt', 'structuretaxvaluedollarcnt', 'buildingqualitytypeid', 'propertylandusetypeid'] , inplace = True)
+    # returning df
+    return df
 
+def drop_more_selected_columns(df):
+    """
+    Accepts dataframe and drops all categorical columns that only contain 1 unique value after all null values were removed.
+    """
+    # dropping columns specified by column name
+    df.drop(columns=['fips', 'regionidcounty', 'roomcnt'] , inplace = True)
+    return df
 
-
+def zillow_dummy(df):
+    """
+    Accepts a data frame, returns it with heatingorsystemtypeid column split into 3 dummary variables columns and original heatingorsystemtypeid column removed.
+    """
+    # creating dummy df using heatingorsystemtypeid column
+    dummy_df = pd.get_dummies(df['heatingorsystemtypeid'])
+    # renaming dummy columns 
+    dummy_df.rename(columns = {2.0: 'heating_system_type_2', 7.0: 'heating_system_type_7', 20.0: 'heating_system_type_20'}, inplace=True)
+    # adding dummy df to original df
+    df = pd.concat([df, dummy_df], axis = 1)
+    # dropping column dummy data is based on
+    df.drop(columns=['heatingorsystemtypeid'] , inplace = True)
+    # returning df
+    return df
 
