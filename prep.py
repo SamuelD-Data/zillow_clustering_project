@@ -50,18 +50,31 @@ def drop_more_selected_columns(df):
     df.drop(columns=['fips', 'regionidcounty', 'roomcnt'] , inplace = True)
     return df
 
-def zillow_dummy(df):
+def compare_column_values(df):
     """
-    Accepts a data frame, returns it with heatingorsystemtypeid column split into 3 dummary variables columns and original heatingorsystemtypeid column removed.
+    Accepts dataframe. Compares various bathroom and property square feet columns to determine how many unique values exist between them.
+    Is used to check if columns are duplicates or near-duplicates.
     """
-    # creating dummy df using heatingorsystemtypeid column
-    dummy_df = pd.get_dummies(df['heatingorsystemtypeid'])
-    # renaming dummy columns 
-    dummy_df.rename(columns = {2.0: 'heating_system_type_2', 7.0: 'heating_system_type_7', 20.0: 'heating_system_type_20'}, inplace=True)
-    # adding dummy df to original df
-    df = pd.concat([df, dummy_df], axis = 1)
-    # dropping column dummy data is based on
-    df.drop(columns=['heatingorsystemtypeid'] , inplace = True)
-    # returning df
-    return df
+    # sum total number of unique values between pairs of columns
+    sqft_columns_diff = (df.finishedsquarefeet12 != df.calculatedfinishedsquarefeet).sum()
+    bathroom_count_diff = (df.calculatedbathnbr != df.bathroomcnt).sum()
+    bathroom_count_diff_alt = (df.fullbathcnt != df.bathroomcnt).sum()
 
+    # print results
+    print(f'Number of different values between finishedsquarefeet12 and calculatedfinishedsquarefeet: {sqft_columns_diff}')
+    print(f'Number of different values between calculatedbathnbr and bathroomcnt: {bathroom_count_diff}')
+    print(f'Number of different values between fullbathcnt and bathroomcnt: {bathroom_count_diff_alt}')
+
+def tax_columns_calculator(df):
+    """
+    Accepts dataframe. Prints avg % of rows where the sum of structuretaxvaluedollarcnt and landtaxvaluedollarcnt is equal to taxvaluedollarcnt.
+    Is used to confirm if taxvaluedollarcnt column holds sums of other taxvalue columns.
+    """
+    # creating new df that holds all three columns we're interested in
+    tax_eval_df = df[['structuretaxvaluedollarcnt', 'landtaxvaluedollarcnt', 'taxvaluedollarcnt']]
+
+    # creating new column in df that is the sum of landtaxvaluedollarcnt and structuretaxvaluedollarcnt
+    tax_eval_df['taxvaluedollarcnt_test'] = df.structuretaxvaluedollarcnt + df.landtaxvaluedollarcnt
+
+    # comparing taxvaluedollarcnt to our manually calculated column and finding the average % of rows where the values matched
+    print((tax_eval_df.taxvaluedollarcnt_test == tax_eval_df.taxvaluedollarcnt).mean())
