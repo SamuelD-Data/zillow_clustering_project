@@ -10,18 +10,28 @@ def get_connection(db, user=user, host=host, password=password):
     """
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
+# creating function that creates a variable call filename that holds the name of a current, or soon to be created file
 def get_zillow_data():
-    """
-    Function connects to the data science database and returns a data frame containing Zillow data for 2017 properties and predictions. 
-    """
+    
     # create SQL query string
     sql_query = "SELECT * FROM properties_2017 JOIN predictions_2017 on predictions_2017.parcelid = properties_2017.parcelid WHERE unitcnt = 1"
     
-    # creates dataframe using data from DS database, Zillow table
-    df = pd.read_sql(sql_query, get_connection('zillow'))
+    # set filename for reference
+    filename = "zillow.csv"
     
-    # writes data to csv file for future use
-    df.to_csv('zillow_df.csv')
+    # if a file is found with a name that matches filename (zillow.csv) 
+    # return the data as a dataframe
+    if os.path.isfile(filename):
+        return pd.read_csv(filename)
     
-    # returns data frame
-    return df
+    # if no file with the specified name can be found
+    else:
+    
+        # create dataframe using data from DS database, Zillow table
+        df = pd.read_sql(sql_query, get_connection('zillow'))
+
+        # writing dataframe to csv file
+        df.to_csv(filename, index = False)
+
+        # return the dataframe
+        return df 
