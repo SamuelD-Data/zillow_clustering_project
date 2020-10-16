@@ -167,8 +167,7 @@ def column_renamer(train, validate, test):
 
 def final_prep():
     """
-    No arguments needed. Function retrieves and prepares Zillow data for exploration with all changes from prep phase. 
-    The returned dataset is an copy of the dataset you'd receive at the end of the prep phase.
+    No arguments needed. Function returns train, validate and test Zillow datasets ready for exploration with all changes from prep phase. 
     """
     # create variable that will hold DF for easy access to data
     df = get_zillow_data()
