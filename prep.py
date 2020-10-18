@@ -239,7 +239,7 @@ def rfe_column_dropper(train, validate, test, train_scaled, validate_scaled, tes
     Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them only the 3 features selected based on RFE and logerror.
     """
     # listing features we're keeping from RFE ranking
-    kept_features = ['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
+    kept_features = ['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
 
     # assigning kept features our datasets
     train_scaled = train_scaled[kept_features]
@@ -257,13 +257,13 @@ def column_renamer(unscaled_train, unscaled_validate, unscaled_test, scaled_trai
     Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them will all columns renamed.
     """
     # Renaming columns in given dataframe
-    unscaled_train.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_validate.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_test.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
 
-    scaled_train.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_validate.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_test.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
 
     # Returning dataframes
     return unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test
@@ -330,14 +330,14 @@ def final_prep():
     scaler = sklearn.preprocessing.MinMaxScaler()
 
     # fitting scaler to train column and transforming it 
-    scaled_train[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.fit_transform(scaled_train[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
+    scaled_train[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.fit_transform(scaled_train[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
 
     # scaling data in other dataframes
-    scaled_validate[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.transform(scaled_validate[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
-    scaled_test[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']]= scaler.transform(scaled_test[['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
+    scaled_validate[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.transform(scaled_validate[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
+    scaled_test[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']]= scaler.transform(scaled_test[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
 
     # listing features we're keeping from RFE ranking
-    kept_features = ['bathroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
+    kept_features = ['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
 
     # assigning kept features our datasets
     unscaled_train = unscaled_train[kept_features]
@@ -349,13 +349,13 @@ def final_prep():
     scaled_test = scaled_test[kept_features]
     
     # Renaming columns in given dataframe
-    unscaled_train.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_validate.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_test.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    unscaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
 
-    scaled_train.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_validate.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_test.rename(columns = {'bathroomcnt': 'bathroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
+    scaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
     
     # returning scaled and unscaled datasets
     return unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test
