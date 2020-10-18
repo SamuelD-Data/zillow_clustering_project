@@ -41,20 +41,16 @@ def model_1_function(train, predict):
     train_df = train.copy()
     
     # creating df's with the two features we want to cluster for each passed df
-    X = cluster_df[['bathroom_count','property_sq_ft']]
-    train_cluster_features = train_df[['bathroom_count','property_sq_ft']]
+    X = cluster_df[['bedroom_count','property_sq_ft']]
+    train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
 
-    # creating kmeans object and fitting to predict data
-    kmeans = KMeans(n_clusters = 3)
-    kmeans.fit(X)
-    
     # creating kmeans object and fitting to train data
-    train_kmeans = KMeans(n_clusters = 3)
-    train_kmeans.fit(train_cluster_features)
+    kmeans = KMeans(n_clusters = 3)
+    kmeans.fit(train_cluster_features)
 
     # creating clusters and adding as columns
     cluster_df['cluster'] = kmeans.predict(X)
-    train_df['cluster'] = train_kmeans.predict(train_cluster_features)
+    train_df['cluster'] = kmeans.predict(train_cluster_features)
     
     # creating dummy dfs using cluster columns
     dummy_df = pd.get_dummies(cluster_df['cluster'])
@@ -73,14 +69,14 @@ def model_1_function(train, predict):
     train_df.drop(columns=['cluster'] , inplace = True)
     
     # select features for model 1 predictions
-    Xfeat = cluster_df[['bathroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
+    Xfeat = cluster_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train_df[['bathroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
+    lm.fit(train_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
 
     # predict logerror on predict DF with model 1
     yfeat['model_1_pred'] = lm.predict(Xfeat)
@@ -100,14 +96,14 @@ def model_2_function(train, predict):
     predict_df = predict.copy()
 
     # select features for model 2 predictions
-    Xfeat = predict_df[['bathroom_count', 'property_sq_ft', 'tax_dollar_value']]
+    Xfeat = predict_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value']]
     yfeat = pd.DataFrame(predict_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train[['bathroom_count', 'property_sq_ft', 'tax_dollar_value']], train['log_error'])
+    lm.fit(train[['bedroom_count', 'property_sq_ft', 'tax_dollar_value']], train['log_error'])
 
     # predict logerror with model 2
     yfeat['model_2_pred'] = lm.predict(Xfeat)
@@ -128,20 +124,16 @@ def model_3_function(train, predict):
     train_df = train.copy()
     
     # creating df's with the two features we want to cluster for each passed df
-    X = cluster_df[['bathroom_count','property_sq_ft']]
-    train_cluster_features = train_df[['bathroom_count','property_sq_ft']]
+    X = cluster_df[['bedroom_count','property_sq_ft']]
+    train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
 
     # creating kmeans object and fitting to predict data
     kmeans = KMeans(n_clusters = 3)
     kmeans.fit(X)
-    
-    # creating kmeans object and fitting to train data
-    train_kmeans = KMeans(n_clusters = 3)
-    train_kmeans.fit(train_cluster_features)
 
     # creating clusters and adding as columns
     cluster_df['cluster'] = kmeans.predict(X)
-    train_df['cluster'] = train_kmeans.predict(train_cluster_features)
+    train_df['cluster'] = kmeans.predict(train_cluster_features)
     
     # creating dummy dfs using cluster columns
     dummy_df = pd.get_dummies(cluster_df['cluster'])
@@ -160,14 +152,14 @@ def model_3_function(train, predict):
     train_df.drop(columns=['cluster'] , inplace = True)
     
     # select features for model 3 predictions
-    Xfeat = cluster_df[['bathroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
+    Xfeat = cluster_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train_df[['bathroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
+    lm.fit(train_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
 
     # predict logerror on predict DF with model 3
     yfeat['model_3_pred'] = lm.predict(Xfeat)
