@@ -10,9 +10,12 @@ def get_connection(db, user=user, host=host, password=password):
     """
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
-# creating function that creates a variable call filename that holds the name of a current, or soon to be created file
+
 def get_zillow_data():
-    
+    """
+    Attempts to read zillow data from file 'zillow.csv' in local directory. 
+    If unable to, retrieves data from zillow table in data science database.
+    """
     # create SQL query string
     sql_query = "SELECT * FROM properties_2017 JOIN predictions_2017 on predictions_2017.parcelid = properties_2017.parcelid WHERE unitcnt = 1"
     

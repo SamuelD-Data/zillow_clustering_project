@@ -36,7 +36,7 @@ def drop_missing_columns(df):
     # setting percent of values in each column that must be non-null in order for column to not be dropped
     prop_required_column = .6
     threshold = int(round(prop_required_column*len(df.index),0))
-    # dropping columns
+    # dropping columns 
     df.dropna(axis=1, thresh=threshold, inplace=True)
     # returning df
     return df
@@ -249,7 +249,8 @@ def rfe_column_dropper(train, validate, test, train_scaled, validate_scaled, tes
     train = train[kept_features]
     validate = validate[kept_features]
     test = test[kept_features]
-
+    
+    # returning data frames
     return train, validate, test, train_scaled, validate_scaled, test_scaled
 
 def column_renamer(unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test):

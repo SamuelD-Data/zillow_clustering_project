@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 
 def baseline_function(train):
     """
-    Function accepts 1 dataframe. Predicts logerror as the average logerror in every row then returns RMSE value of these predictions.
+    Function accepts 1 dataframe. Predicts logerror as the average logerror in every row then prints RMSE value of these predictions.
     """
     # creating empty dataframe
     y_train = pd.DataFrame()
@@ -34,7 +34,7 @@ def model_1_function(train, predict):
     Accepts 2 dataframes. 
     Train is the train df that model 1 will fit to. 
     Predict is the DF you would like model 1 to predict the log_error of after fitting to train.
-    Returns RMSE of log_error predictions vs actual log_error on predict DF.
+    Prints RMSE of log_error predictions vs actual log_error on predict DF.
     """
     # making copies of train so we don't alter the original
     cluster_df = predict.copy()
@@ -90,7 +90,7 @@ def model_2_function(train, predict):
     Accepts 2 dataframes. 
     Train is the train df that model 2 will fit to. 
     Predict is the df you would like model 2 to predict the log_error of after fitting to train.
-    Returns RMSE of log_error predictions vs actual log_error.
+    Prints RMSE of log_error predictions vs actual log_error.
     """
     # making copy of train so we don't alter the original
     predict_df = predict.copy()
@@ -117,7 +117,7 @@ def model_3_function(train, predict):
     Accepts 2 dataframes. 
     Train is the train df that model 3 will fit to. 
     Predict is the DF you would like model 3 to predict the log_error of after fitting to train.
-    Returns RMSE of log_error predictions vs actual log_error on predict DF.
+    Prints RMSE of log_error predictions vs actual log_error on predict DF.
     """
     # making copies of train so we don't alter the original
     cluster_df = predict.copy()

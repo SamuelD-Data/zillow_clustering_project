@@ -11,9 +11,11 @@ Zillow serves the full lifecycle of owning and living in a home: buying, selling
 
 ### Goals
 
-- Identify the drivers of log error values in Zillow property value estimates ("Zestimates") to fluctuate. 
+- Improve original estimate of the log error by using clustering methodologies.
 
-- We will also create a machine learning model that will predict the resulting logerror values of our zestimates.
+- Identify drivers of log error
+
+- Create a model that predicts log error 
 
 I will also deliver the following:
 
@@ -34,7 +36,6 @@ I will also deliver the following:
     - A python file that contains all of the functions needed to create the models used in the modeling phase
 
 - A presentation that walks through each step of our project and the notebook as a whole.
-
 
 ### Data Dictionary
 
@@ -70,7 +71,7 @@ bathroom_count: Found this column was a near duplicate of two other columns (ful
 
 property_sq_ft: Found this column was a near duplicate of finishedsquarefeet12. Only 48 rows differed between them so I didn't perceive any significant impact of their differences. Decided to use this column since the name sounded the closest to what I wanted, the square footage within the property.
 
-tax_dollar_value: Represents the sum of landtaxvaluedollarcnt and structuretaxvaluedollarcnt. I intuitively felt the sum of the tax value from both of the originating values would be more effective in my exploration and modeling. If this feature was found to be ineffective I would have considered using its source values instead.
+tax_dollar_value: Represents the sum of landtaxvaluedollarcnt and structuretaxvaluedollarcnt. I felt the sum of the tax value from both of the originating values would be more effective in my exploration and modeling. If this feature was found to be ineffective I would have considered using its source values instead.
 
 All other columns have unique values that were not represented directly or indirectly in other columns. Thus they were chosen as they were the only sources for their data. 
 
@@ -90,7 +91,7 @@ All other columns have unique values that were not represented directly or indir
 
 - Log errors will push farther away from 0 in cases where the rarity of variables value increases.
     - For example, if only a few properties we've ever evaluated have more than 20 bathrooms, we're going to have trouble evaluating it's value accurately because we haven't encountered a lot of properties with that rare of a variable that relates to value.
-        - Update: After exploring and modeling, this appears to be untrue, it seemed that as bathroom count and other variables decreased, log errors became more numerous and extreme, despite there being an abundance of properties with low bathroom counts.
+    - Update: After exploring and modeling, this appears to be untrue, it seemed that as bathroom count and other variables decreased, log errors became more numerous and extreme, despite there being an abundance of properties with low bathroom counts.
 
 ### Project Plan
 
@@ -159,11 +160,8 @@ Run the jupyter notebook.
 
 ### Key Findings and Takeaways
 
-Install acquire.py, prepare.py and model.py into your working directory. (You must have access to Codeup data science database)
+Summary of Key Findings:
 
-Run the jupyter notebook.
-
-# Summary of Findings
 Through visualizations, hypothesis tests and modeling, we discovered evidence that drivers of log_error may include 
 - bedroom_count
 - property_sq_ft
@@ -183,16 +181,17 @@ We created several models including a baseline that always predicted logerror to
 
 - It should be noted that our second best model used clusters on the validate (out of sample) data to outperform our baseline model which was using in-sample data. This is further evidence that clusters may still be useful as tool for predicting log errors.
     
-# Recommendations
-- We should focus on the features identified as drivers of log error when attempting to refine our zillow estimate software. For example, let's explore how we are generating zestimates for properties with lower square footage to identify why this variable relates to higher log errors.
+Recommendation:
 
+Begin a project to improve the accuracy of our zillow estimate software using the insights and model generated from this project
 
-# Expectations
-- By focusing our efforts on understanding what drives our logerrors, we can improve the accuracy of our zestimates  which will increase user satisfaction and make our zestimates more viable.
+Expectations:
 
-# In the future 
-- I'd like to revisit this project and use the heating_system categorical variable as a feature since it was ranked very highly during our RFE phase. We only elected to not use it in order to simplify our exploration and save time. We may be able to find evidence of it as a driver of logerror as well as incorporate it into our model.
+By improving the accuracy of our zestimates we will increase satisfaction among our current users and make our services more attractive to potential users. 
 
+In the future: 
+
+I'd like to revisit this project and explore / model with clusters more. A new combination of cluster features may generate clusters that prove to be very useful in predicting log error. I'd also like to try imputing some of the null values we dropped and observe how that influences our hypothesis tests and modeling.
 
 
 
