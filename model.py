@@ -45,7 +45,7 @@ def model_1_function(train, predict):
     train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
 
     # creating kmeans object and fitting to train data
-    kmeans = KMeans(n_clusters = 3)
+    kmeans = KMeans(n_clusters = 3, random_state=123)
     kmeans.fit(train_cluster_features)
 
     # creating clusters and adding as columns
@@ -128,7 +128,7 @@ def model_3_function(train, predict):
     train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
 
     # creating kmeans object and fitting to predict data
-    kmeans = KMeans(n_clusters = 3)
+    kmeans = KMeans(n_clusters = 3, random_state=123)
     kmeans.fit(X)
 
     # creating clusters and adding as columns
@@ -152,14 +152,14 @@ def model_3_function(train, predict):
     train_df.drop(columns=['cluster'] , inplace = True)
     
     # select features for model 3 predictions
-    Xfeat = cluster_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
+    Xfeat = cluster_df[['cluster_0', 'cluster_1', 'cluster_2']]
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
+    lm.fit(train_df[['cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
 
     # predict logerror on predict DF with model 3
     yfeat['model_3_pred'] = lm.predict(Xfeat)
