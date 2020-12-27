@@ -46,7 +46,9 @@ def drop_selected_columns(df):
     Accepts dataframe and drops all categorical columns with more than 10 unique values or only 1 unique value.
     """
     # dropping columns specified by column name
-    df.drop(columns=['id', 'parcelid', 'latitude', 'longitude', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 'regionidcity', 'regionidzip', 'yearbuilt', 'censustractandblock', 'transactiondate', 'assessmentyear', 'unitcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'landtaxvaluedollarcnt', 'structuretaxvaluedollarcnt', 'buildingqualitytypeid', 'propertylandusetypeid', 'id.1', 'parcelid.1'] , inplace = True)
+    df.drop(columns=['id', 'parcelid', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 
+    'regionidcity', 'regionidzip', 'censustractandblock', 'id.1', 'parcelid.1', 'structuretaxvaluedollarcnt', 
+    'landtaxvaluedollarcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'unitcnt', 'assessmentyear'], inplace = True)
     # returning df
     return df
 
