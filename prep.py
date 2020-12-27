@@ -133,7 +133,8 @@ def upper_outliers(s, k):
 
 def add_upper_outlier_columns(df, k):
     '''
-    Accepts dataframe and cutoff value. Returns datframe with a new column containing upper outlier data for every numeric column.
+    Accepts dataframe and cutoff value. 
+    Returns datframe with a new column containing upper outlier data for every numeric column.
     '''
     # iterate through numeric data type columns
     for col in df.select_dtypes('number'):
@@ -144,34 +145,66 @@ def add_upper_outlier_columns(df, k):
     # return df
     return df
 
-def upper_outlier_data_print(df):
+# creating functions to identify upper outliers and show how far below the lower bound they are
+
+def lower_outliers(s, k):
+    '''
+    Accepts series and cutoff value.
+    If a value in the series is an lower outlier, it returns a number that represents how far above the value is from the lower bound
+    or 0 if the number is not an outlier.
+    '''
+    # creating 2 variables that represent the 1st and 3rd quantile of the given series
+    q1, q3 = s.quantile([.25, .75])
+
+    # calculating IQR
+    iqr = q3 - q1
+
+    # calculating lower bound
+    lower_bound = q1 - k * iqr
+
+    # returning series 
+    return s.apply(lambda x: max([lower_bound - x, 0]))
+
+def add_lower_outlier_columns(df, k):
+    '''
+    Accepts dataframe and cutoff value. Returns datframe with a new column containing lower outlier data for every numeric column.
+    '''
+    # iterate through numeric data type columns
+    for col in df.select_dtypes('number'):
+        if col.endswith('_upper_outliers') == False:
+
+            # create column that contains values produced by lower_outliers function
+            df[col + '_lower_outliers'] = lower_outliers(df[col], k)
+
+    # return df
+    return df
+
+def outlier_remover(df):
     """
-    Accepts dataframe. Returns .describe info for every column ending in "upper_outliers". To be used after add_upper_outlier_columns function.
+    Accepts dataframe. Drops any row with a value > 0 in a column ending in "_outliers". 
     """
-    # create list of column names that end with "_upper_outliers"
-    upper_outlier_cols = [col for col in df if col.endswith('_upper_outliers')]
+    # create list of column names that end with "_outliers"
+    outlier_cols = [col for col in df if col.endswith('_outliers')]
     
     # iterate through column name list
-    for col in upper_outlier_cols:
-        
-        # print .describe info for each column from list
-        print('~~~\n' + col)
-        data = df[col][df[col] > 0]
-        print(data.describe())
+    for col in outlier_cols:
+        df.drop(df[df[col] > 0].index, inplace = True) 
+    return df
 
-def outlier_remover(train):
+def handle_outliers(df, k):
     """
-    Accepts a dataframe. Drops all rows with upper outliers identified by upper_outliers function.
+    Accepts DF and cutoff value. Identifies and removes all outliers with respect to given cutoff value. 
+    Removes all "outliers" columns created by function.
     """
-    # dropping columns where a value greater than 0 is found in the outlier column
-    train.drop(train[train['bathroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['bedroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['calculatedfinishedsquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['lotsizesquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxvaluedollarcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxamount_upper_outliers'] > 0].index, inplace = True) 
-    # returning dataframe
-    return train
+    # passing given df and cutoff value to functions that will add "upper outlier" and "lower outlier" columns
+    add_upper_outlier_columns(df, k)
+    add_lower_outlier_columns(df, k)
+    
+    # passing df to function that removes outliers identified by previous functions
+    outlier_remover(df)
+
+    # returning df
+    return df
 
 def data_scaler(train, validate, test):
     """
