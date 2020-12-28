@@ -43,21 +43,14 @@ def drop_missing_columns(df):
 
 def drop_selected_columns(df):
     """
-    Accepts dataframe and drops all categorical columns with more than 10 unique values or only 1 unique value.
+    Accepts dataframe and drops columns specified in first section of prep phase.
     """
-    # dropping columns specified by column name
+    # dropping columns
     df.drop(columns=['id', 'parcelid', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 
     'regionidcity', 'regionidzip', 'censustractandblock', 'id.1', 'parcelid.1', 'structuretaxvaluedollarcnt', 
-    'landtaxvaluedollarcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'unitcnt', 'assessmentyear'], inplace = True)
+    'landtaxvaluedollarcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'unitcnt', 'regionidcounty', 
+    'roomcnt', 'fips', 'assessmentyear', 'transactiondate'], inplace = True)
     # returning df
-    return df
-
-def drop_more_selected_columns(df):
-    """
-    Accepts dataframe and drops all categorical columns that only contain 1 unique value after all null values were removed.
-    """
-    # dropping columns specified by column name
-    df.drop(columns=['fips', 'regionidcounty', 'roomcnt'] , inplace = True)
     return df
 
 def compare_column_values(df):
@@ -91,17 +84,47 @@ def tax_columns_calculator(df):
 
 def zillow_dummy(df):
     """
-    Accepts a data frame, returns it with heatingorsystemtypeid column split into 3 dummary variables columns and original heatingorsystemtypeid column removed.
+    Accepts a data frame, returns it with boolean columns for each categorical column's values.
     """
-    # creating dummy df using heatingorsystemtypeid column
-    dummy_df = pd.get_dummies(df['heatingorsystemtypeid'])
-    # renaming dummy columns 
-    dummy_df.rename(columns = {2.0: 'heating_system_type_2', 7.0: 'heating_system_type_7', 20.0: 'heating_system_type_20'}, inplace=True)
-    # adding dummy df to original df
-    df = pd.concat([df, dummy_df], axis = 1)
-    # dropping column dummy data is based on
-    df.drop(columns=['heatingorsystemtypeid'] , inplace = True)
-    # returning df
+    # create df with dummy columns included (removes dummy source columns)
+    dummy_df = pd.get_dummies(df, columns=['buildingqualitytypeid', 'heatingorsystemtypeid', 'propertylandusetypeid'])
+
+    # filtering for dummy column name
+    dummy_cols = [col for col in dummy_df if 'id_' in col]
+
+    # filtering out non-dummy columns
+    dummy_df = dummy_df[dummy_cols]
+
+    # concat with original df so source columns for dummy columns can be kept
+    df = pd.concat([df, dummy_df], axis = 1 )
+
+    return df
+
+def column_sort_rename(df):
+    """
+    Accepts DF. Returns with columns sorted in new order.
+    """
+    df = df[['bathroomcnt', 'bedroomcnt',
+       'calculatedfinishedsquarefeet',  'latitude', 'longitude',
+       'lotsizesquarefeet',  'yearbuilt',
+       'taxvaluedollarcnt', 'taxamount', 'buildingqualitytypeid', 'buildingqualitytypeid_1',
+       'buildingqualitytypeid_3', 'buildingqualitytypeid_4',
+       'buildingqualitytypeid_5', 'buildingqualitytypeid_6',
+       'buildingqualitytypeid_7', 'buildingqualitytypeid_8',
+       'buildingqualitytypeid_9', 'buildingqualitytypeid_10',
+       'buildingqualitytypeid_11', 'buildingqualitytypeid_12',
+       'heatingorsystemtypeid','heatingorsystemtypeid_2', 'heatingorsystemtypeid_7',
+       'heatingorsystemtypeid_20', 'propertylandusetypeid', 'propertylandusetypeid_31',
+       'propertylandusetypeid_246', 'propertylandusetypeid_247',
+       'propertylandusetypeid_260', 'propertylandusetypeid_261',
+       'propertylandusetypeid_264', 'propertylandusetypeid_266',
+       'propertylandusetypeid_267', 'propertylandusetypeid_269', 'logerror']]
+
+    df = df.rename(columns={'bathroomcnt': 'bathroom_count', 'bedroomcnt' : 'bedroom_count', 'calculatedfinishedsquarefeet' : 'property_sqft',
+    'buildingqualitytypeid' : 'building_quality_type_id', 'lotsizesquarefeet' : 'lotsize_sqft', 'yearbuilt' : 'year_built',
+    'taxvaluedollarcnt' : 'tax_dollar_value', 'taxamount' : 'tax_amount', 'heatingorsystemtypeid' : 'heating_system_type_id', 
+    'propertylandusetypeid': 'property_land_use_type_id'})
+
     return df
 
 def split_data(df):
@@ -221,72 +244,19 @@ def data_scaler(train, validate, test):
     # creating scaler object
     scaler = sklearn.preprocessing.MinMaxScaler()
 
+    # columns to scale
+    col_to_scale = ['bathroom_count', 'bedroom_count', 'property_sqft', 'latitude', 'longitude', 
+    'lotsize_sqft', 'year_built', 'tax_dollar_value', 'tax_amount']
+
     # fitting scaler to train column and scaling after
-    train_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.fit_transform(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
+    train_scaled[col_to_scale] = scaler.fit_transform(train[col_to_scale])
 
     # scaling data in dataframes
-    validate_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.transform(validate[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
-    test_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.transform(test[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
+    validate_scaled[col_to_scale] = scaler.transform(validate[col_to_scale])
+    test_scaled[col_to_scale] = scaler.transform(test[col_to_scale])
     
     # return data frames
     return train_scaled, validate_scaled, test_scaled
-
-def rfe_ranker(train):
-    """
-    Accepts dataframe. Uses Recursive Feature Elimination to rank the given df's features in order of their usefulness in
-    predicting logerror with a linear regression model.
-    """
-    # creating linear regression object
-    lm = LinearRegression()
-
-    # fitting linear regression model to features 
-    lm.fit(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']], train['logerror'])
-
-    # creating recursive feature elimination object and specifying to only rank 1 feature as best
-    rfe = RFE(lm, 1)
-
-    # using rfe object to transform features 
-    x_rfe = rfe.fit_transform(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']], train['logerror'])
-
-    # creating mask of selected feature
-    feature_mask = rfe.support_
-
-    # creating train df for rfe object 
-    rfe_train = train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']]
-
-    # creating list of the top features per rfe
-    rfe_features = rfe_train.loc[:,feature_mask].columns.tolist()
-
-    # creating ranked list 
-    feature_ranks = rfe.ranking_
-
-    # creating list of feature names
-    feature_names = rfe_train.columns.tolist()
-
-    # create df that contains all features and their ranks
-    rfe_ranks_df = pd.DataFrame({'Feature': feature_names, 'Rank': feature_ranks})
-
-    # return df sorted by rank
-    return rfe_ranks_df.sort_values('Rank')
-
-def rfe_column_dropper(train, validate, test, train_scaled, validate_scaled, test_scaled):
-    """
-    Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them only the 3 features selected based on RFE and logerror.
-    """
-    # listing features we're keeping from RFE ranking
-    kept_features = ['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
-
-    # assigning kept features our datasets
-    train_scaled = train_scaled[kept_features]
-    validate_scaled = validate_scaled[kept_features]
-    test_scaled = test_scaled[kept_features]
-
-    train = train[kept_features]
-    validate = validate[kept_features]
-    test = test[kept_features]
-    
-    # returning data frames
-    return train, validate, test, train_scaled, validate_scaled, test_scaled
 
 def column_renamer(unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test):
     """
