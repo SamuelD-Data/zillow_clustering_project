@@ -123,7 +123,7 @@ def column_sort_rename(df):
     df = df.rename(columns={'bathroomcnt': 'bathroom_count', 'bedroomcnt' : 'bedroom_count', 'calculatedfinishedsquarefeet' : 'property_sqft',
     'buildingqualitytypeid' : 'building_quality_type_id', 'lotsizesquarefeet' : 'lotsize_sqft', 'yearbuilt' : 'year_built',
     'taxvaluedollarcnt' : 'tax_dollar_value', 'taxamount' : 'tax_amount', 'heatingorsystemtypeid' : 'heating_system_type_id', 
-    'propertylandusetypeid': 'property_land_use_type_id'})
+    'propertylandusetypeid': 'property_land_use_type_id', 'logerror' : 'log_error'})
 
     return df
 
@@ -257,22 +257,6 @@ def data_scaler(train, validate, test):
     
     # return data frames
     return train_scaled, validate_scaled, test_scaled
-
-def column_renamer(unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test):
-    """
-    Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them will all columns renamed.
-    """
-    # Renaming columns in given dataframe
-    unscaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-
-    scaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-
-    # Returning dataframes
-    return unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test
 
 def final_prep():
     """
