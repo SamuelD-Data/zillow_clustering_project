@@ -47,7 +47,7 @@ def drop_selected_columns(df):
     """
     # dropping columns
     df.drop(columns=['id', 'parcelid', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 
-    'regionidcity', 'regionidzip', 'censustractandblock', 'id.1', 'parcelid.1', 'structuretaxvaluedollarcnt', 
+    'regionidcity', 'regionidzip', 'censustractandblock', 'id.1', 'parcelid.1', 'structuretaxvaluedollarcnt', 'taxamount',
     'landtaxvaluedollarcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'unitcnt', 'regionidcounty', 
     'roomcnt', 'fips', 'assessmentyear', 'transactiondate'], inplace = True)
     # returning df
@@ -107,7 +107,7 @@ def column_sort_rename(df):
     df = df[['bathroomcnt', 'bedroomcnt',
        'calculatedfinishedsquarefeet',  'latitude', 'longitude',
        'lotsizesquarefeet',  'yearbuilt',
-       'taxvaluedollarcnt', 'taxamount', 'buildingqualitytypeid', 'buildingqualitytypeid_1',
+       'taxvaluedollarcnt', 'buildingqualitytypeid', 'buildingqualitytypeid_1',
        'buildingqualitytypeid_3', 'buildingqualitytypeid_4',
        'buildingqualitytypeid_5', 'buildingqualitytypeid_6',
        'buildingqualitytypeid_7', 'buildingqualitytypeid_8',
@@ -122,7 +122,7 @@ def column_sort_rename(df):
 
     df = df.rename(columns={'bathroomcnt': 'bathroom_count', 'bedroomcnt' : 'bedroom_count', 'calculatedfinishedsquarefeet' : 'property_sqft',
     'buildingqualitytypeid' : 'building_quality_type_id', 'lotsizesquarefeet' : 'lotsize_sqft', 'yearbuilt' : 'year_built',
-    'taxvaluedollarcnt' : 'tax_dollar_value', 'taxamount' : 'tax_amount', 'heatingorsystemtypeid' : 'heating_system_type_id', 
+    'taxvaluedollarcnt' : 'tax_dollar_value', 'heatingorsystemtypeid' : 'heating_system_type_id', 
     'propertylandusetypeid': 'property_land_use_type_id', 'logerror' : 'log_error'})
 
     return df
@@ -246,7 +246,7 @@ def data_scaler(train, validate, test):
 
     # columns to scale
     col_to_scale = ['bathroom_count', 'bedroom_count', 'property_sqft', 'latitude', 'longitude', 
-    'lotsize_sqft', 'year_built', 'tax_dollar_value', 'tax_amount']
+    'lotsize_sqft', 'year_built', 'tax_dollar_value']
 
     # fitting scaler to train column and scaling after
     train_scaled[col_to_scale] = scaler.fit_transform(train[col_to_scale])
@@ -266,7 +266,7 @@ def final_prep():
     df = get_zillow_data()
     
     # filter dataset to only keep best RFE ranked columns
-    df = df[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet','lotsizesquarefeet', 'taxvaluedollarcnt','taxamount', 'heatingorsystemtypeid', 'logerror']]
+    df = df[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet','lotsizesquarefeet', 'taxvaluedollarcnt', 'heatingorsystemtypeid', 'logerror']]
     
     # drop all rows with missing values
     df.dropna(inplace = True)
@@ -299,7 +299,6 @@ def final_prep():
     train.drop(train[train['calculatedfinishedsquarefeet_upper_outliers'] > 0].index, inplace = True) 
     train.drop(train[train['lotsizesquarefeet_upper_outliers'] > 0].index, inplace = True) 
     train.drop(train[train['taxvaluedollarcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxamount_upper_outliers'] > 0].index, inplace = True) 
     
     # creating list of outlier column names
     outlier_cols = [col for col in train if col.endswith('_outliers')]
