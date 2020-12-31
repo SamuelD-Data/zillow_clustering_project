@@ -197,4 +197,29 @@ def model_3_function(train, predict):
     rmse_m3 = round(mean_squared_error(yfeat.log_error, yfeat.model_3_pred)**(1/2),6)
     print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m3)
 
-    
+def model_4_function(train, predict):
+    """
+    Accepts 2 dataframes. 
+    Train is the train df that model 4 will fit to. 
+    Predict is the df you would like model 4 to predict the log_error of after fitting to train.
+    Prints RMSE of log_error predictions vs actual log_error.
+    """
+    # making copy of train so we don't alter the original
+    predict_df = predict.copy()
+
+    # select features for model 2 predictions
+    Xfeat = predict_df[['bedroom_count', 'bathroom_count', 'property_sqft', 'tax_dollar_value']]
+    yfeat = pd.DataFrame(predict_df['log_error'])
+
+    # creating linear regression object
+    lm = LinearRegression(normalize=True)
+
+    # fitting model to train data
+    lm.fit(train[['bedroom_count', 'bathroom_count', 'property_sqft', 'tax_dollar_value']], train['log_error'])
+
+    # predict logerror with model 2
+    yfeat['model_4_pred'] = lm.predict(Xfeat)
+
+    # evaluate RMSE and print results
+    rmse_m4 = round(mean_squared_error(yfeat.log_error, yfeat.model_4_pred)**(1/2),6)
+    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m4)
