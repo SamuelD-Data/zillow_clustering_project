@@ -13,8 +13,6 @@ Zillow serves the full lifecycle of owning and living in a home: buying, selling
 
 - Improve original estimate of the log error by using clustering methodologies.
 
-- Identify drivers of log error
-
 - Create a model that predicts log error 
 
 I will also deliver the following:
@@ -41,29 +39,34 @@ I will also deliver the following:
 
 Defining all columns that were used in exploration and beyond in addition to heating_system columns since they were a major part of preparation.
 
-bathroom_cnt: Number of bathrooms in property (renamed to bathroom_count)
-
 bathroom_count: Number of bathrooms in property
 
-bedroom_cnt: Number of bedrooms in property
+bedroom_count: Number of bedrooms in property 
 
-bedroom_count: Number of bedrooms in property (renamed to bedroom_count)
+building_quality_type_id: Code for quality of building type, no description given beyond this (encoded and split into buildingqualitytypeid_x)
 
-calculatedfinishedsquarefeet: Total living square feet within property (renamed to property_sq_ft)
+buildingqualitytypeid_x: Boolean columns representing value from building_quality_type_id
+
+lotsize_sqft: Total square feet in lot property is located on
 
 property_sq_ft: Total living square feet within property
 
-taxdvalueollarcount: Total tax value of property (renamed to tax_dollar_value)
-
 tax_dollar_value: Total tax value of property
 
-heatingorsystemtypeid: Code for type of heating system in property (encoded and split into heating_system_type_x)
+heating_system_type_id: Code for type of heating system in property (encoded and split into heatingsystemtype_x)
 
-heating_system_type_2: Central heating system in property
+heating_system_type_x: Boolean columns representing value from heating_system_type_id
 
-heating_system_type_20: Floor/Wall heating system in property
+latitude: latitude of property
 
-heating_system_type_7: Solar heating system in property
+longitude: longitude of property
+
+property_land_use_type_id: Code for type of heating system in property (encoded and split into propertylandusetypeid_x)
+
+propertylandusetypeid_x: Boolean columns representing value from property_land_use_type_id
+
+year_built: Year property was built
+
 
 ### Reasons for Selected Columns
 
@@ -109,24 +112,24 @@ All other columns have unique values that were not represented directly or indir
         - focus on extreme outliers (k=6) to preserve data
         - drop to conserve time
         - otherwise transform to upper/lower boundaries if too much data will be lost by dropping
+            - Update: Keeping outliers in data as they appear to be legitimately extreme values and not erroneous.
     - Data types
         - make sure all columns have an appropriate datatype
     - Dropping columns
         - remove columns as needed and for reasons such as
             - being duplicate of another column
             - majority of column values are missing
-            - only 1 unique value in data
+            - with identical values in each row of column
     - Scale non-target variable numerical columns
     - Encode categorical columns via get_dummies
-    - Use RFE on columns remaining after prep
-        - For simplicity, only take top 3 columns to exploration
-            - Can retrieve more if deemed necessary later
+    - Rename columns as appropriate
+
 
 3) Explore
 - Plot each feature relation to logerror 
-    - Identify the relationship between them (example, as x increases, log_error increases past 0)
-    - Perform hypothesis test to confirm or deny if this relationship statistically present
-- Create clusters using each unique pair of features
+    - Identify the relationship between them (example, as x increases, log_error moves away/closer from/to  0)
+- Perform hypothesis tests
+- Create clusters using pairs of features
     - Use subplots with varying number of clusters per pair of features to identify a cluster amount that produces strong separation between clusters
     - Create clusters with amount prescribed by subplots
     - Perform hypothesis on each set of clusters to see if log error varies between them
@@ -134,25 +137,24 @@ All other columns have unique values that were not represented directly or indir
 
 4) Model
 - Create baseline that predicts mean of logerror and calculate RMSE against actual logerror values in train data
-- Create 3 alternate models with varying features
-    - use 3 models on train set
-    - top 2 models that outperform baseline will go to validate
-- Use top 2 models on validate set, model with best RMSE goes to test
+- Create 4 alternate models with varying features
+- Use 3 models on train set
+- Top 2 models that outperform baseline will go to validate
+- Use top 2 models on validate set, model with lowest RMSE goes to test
 - Use best model on test set and evaluate results
 
 5) Conclude
 - Document the following
-    - identifed drivers of log error
-    - best model's details
-    - evaluate effectiveness of clusters as drivers and model features
-    - recommendations
-    - expectations
-    - what I would like to do in the future with regard to this project
+    - Features that were found to have connection with log error
+    - Best model's details
+    - Recommendations
+    - Expectations
+    - What I would like to do in the future with regard to this project
 
 
 ### How to Reproduce
 
-Download data from Kaggle into your working directory. (You must be logged in to your Kaggle account.)
+Download data from Codeup's data science database into your working directory. (Must have access to database)
 
 Install acquire.py, prepare.py and model.py into your working directory.
 
@@ -160,38 +162,41 @@ Run the jupyter notebook.
 
 ### Key Findings and Takeaways
 
-Summary of Key Findings:
+__Summary of Findings__
 
-Through visualizations, hypothesis tests and modeling, we discovered evidence that drivers of log_error may include 
-- bedroom_count
-- property_sq_ft
-- tax_dollar_value
-- clusters created from a combination of bedroom_count and property_sq_ft
-
-We created several models including a baseline that always predicted logerror to be the sample average
-
-- Each model's performance was evaluated based on the RMSE value produced by comparing its prediction of logerror values vs. actual log error values from the data it was predicting with
-
-- Model 2 was the best performer (specs listed below)
-
-    - Type: Linear Regression
-    - Features: Uses all features listed above, except for clusters
-    
-- Although this model did not use clusters as features and outperformed models that did, our clustering algorithm was very new and with time could be improved and incorporated into this model to possibly improve its effectiveness
-
-- It should be noted that our second best model used clusters on the validate (out of sample) data to outperform our baseline model which was using in-sample data. This is further evidence that clusters may still be useful as tool for predicting log errors.
-    
-Recommendation:
-
-Begin a project to improve the accuracy of our zillow estimate software using the insights and model generated from this project
-
-Expectations:
-
-By improving the accuracy of our zestimates we will increase satisfaction among our current users and make our services more attractive to potential users. 
-
-In the future: 
-
-I'd like to revisit this project and explore / model with clusters more. A new combination of cluster features may generate clusters that prove to be very useful in predicting log error. I'd also like to try imputing some of the null values we dropped and observe how that influences our hypothesis tests and modeling.
+- Explored many variables via plots and hypothesis tests and found the following to be viable for predicting log error
+    - bathroom_count
+    - bedroom_count
+    - property_sq_ft
+    - tax_dollar_value
 
 
+- Created clusters from various combinations of bedroom_count, tax_dollar_value and  property_sq_ft and found statistical signifgance between the average log errors between each combination respective set of clusters 
+
+
+- Created several models including a baseline that always predicted logerror to be the sample average
+
+- Each model's performance was evaluated based on RMSE produced by comparing its prediction of logerror values vs. actual log error values
+
+- Model 2 was the best performer 
+    - Linear Regression
+    - Features
+        - property_sq_ft
+        - bathroom count
+        - cluster set 2
+            - cluster variables: tax_dollar_value and bedroom_count
+            - number of clusters: 2
+
+
+__Recommendation__
+- Begin a project to improve the accuracy of our zillow estimate software using the insights and model generated from this project
+
+
+__Expectations__
+- By improving the accuracy of our zestimates we will increase satisfaction among our current users and make our services more attractive to potential users. 
+
+
+__In the future__
+- Create clusters that include bathroom count as this variable is not included in any feature combinations currently
+- Cluster latitude and longitude to see how their clusters relation to log error
 
