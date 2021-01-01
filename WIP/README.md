@@ -67,17 +67,6 @@ propertylandusetypeid_x: Boolean columns representing value from property_land_u
 
 year_built: Year property was built
 
-
-### Reasons for Selected Columns
-
-bathroom_count: Found this column was a near duplicate of two other columns (fullbathcnt and calculatedbathnbr). Only 46 rows differed between them so I didn't perceive any significant impact of their differences. Chose this one as the name sounded the closest to what I needed, a count of the bathrooms in the property. 
-
-property_sq_ft: Found this column was a near duplicate of finishedsquarefeet12. Only 48 rows differed between them so I didn't perceive any significant impact of their differences. Decided to use this column since the name sounded the closest to what I wanted, the square footage within the property.
-
-tax_dollar_value: Represents the sum of landtaxvaluedollarcnt and structuretaxvaluedollarcnt. I felt the sum of the tax value from both of the originating values would be more effective in my exploration and modeling. If this feature was found to be ineffective I would have considered using its source values instead.
-
-All other columns have unique values that were not represented directly or indirectly in other columns. Thus they were chosen as they were the only sources for their data. 
-
 ### Initial Thoughts
 
 - How will I handle exploring clusters?
@@ -198,5 +187,5 @@ __Expectations__
 
 __In the future__
 - Create clusters that include bathroom count as this variable is not included in any feature combinations currently
-- Cluster latitude and longitude to see how their clusters relation to log error
+- Cluster latitude and longitude to see how their clusters relate to log error
 
