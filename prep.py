@@ -1,4 +1,3 @@
-# import modules needed to run functions
 # imports
 from acquire import get_zillow_data
 from sklearn.preprocessing import MinMaxScaler
@@ -43,19 +42,14 @@ def drop_missing_columns(df):
 
 def drop_selected_columns(df):
     """
-    Accepts dataframe and drops all categorical columns with more than 10 unique values or only 1 unique value.
+    Accepts dataframe and drops columns specified in first section of prep phase.
     """
-    # dropping columns specified by column name
-    df.drop(columns=['id', 'parcelid', 'latitude', 'longitude', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 'regionidcity', 'regionidzip', 'yearbuilt', 'censustractandblock', 'transactiondate', 'assessmentyear', 'unitcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'landtaxvaluedollarcnt', 'structuretaxvaluedollarcnt', 'buildingqualitytypeid', 'propertylandusetypeid', 'id.1', 'parcelid.1'] , inplace = True)
+    # dropping columns
+    df.drop(columns=['id', 'parcelid', 'propertycountylandusecode', 'propertyzoningdesc', 'rawcensustractandblock', 
+    'regionidcity', 'regionidzip', 'censustractandblock', 'id.1', 'parcelid.1', 'structuretaxvaluedollarcnt', 'taxamount',
+    'landtaxvaluedollarcnt', 'finishedsquarefeet12', 'calculatedbathnbr', 'fullbathcnt', 'unitcnt', 'regionidcounty', 
+    'roomcnt', 'fips', 'assessmentyear', 'transactiondate'], inplace = True)
     # returning df
-    return df
-
-def drop_more_selected_columns(df):
-    """
-    Accepts dataframe and drops all categorical columns that only contain 1 unique value after all null values were removed.
-    """
-    # dropping columns specified by column name
-    df.drop(columns=['fips', 'regionidcounty', 'roomcnt'] , inplace = True)
     return df
 
 def compare_column_values(df):
@@ -87,19 +81,72 @@ def tax_columns_calculator(df):
     # comparing taxvaluedollarcnt to our manually calculated column and finding the average % of rows where the values matched
     print((tax_eval_df.taxvaluedollarcnt_test == tax_eval_df.taxvaluedollarcnt).mean())
 
+def d_type_convert(df):
+    """
+    Accepts DF. Converts data types of various columns to integer.
+    """
+    
+    # creating dictionary to specify data type changes
+    convert_dict = {'bathroomcnt': int, 
+                'bedroomcnt': int,
+                'buildingqualitytypeid': int,
+                'heatingorsystemtypeid': int,
+                'latitude': int,
+                'longitude': int,
+                'lotsizesquarefeet': int,
+                'propertylandusetypeid': int,
+                'yearbuilt': int,
+               } 
+  
+    # passing dictionary to perform dtype updates
+    df = df.astype(convert_dict) 
+    
+    # returning df
+    return df
+
 def zillow_dummy(df):
     """
-    Accepts a data frame, returns it with heatingorsystemtypeid column split into 3 dummary variables columns and original heatingorsystemtypeid column removed.
+    Accepts a data frame, returns it with boolean columns for each categorical column's values.
     """
-    # creating dummy df using heatingorsystemtypeid column
-    dummy_df = pd.get_dummies(df['heatingorsystemtypeid'])
-    # renaming dummy columns 
-    dummy_df.rename(columns = {2.0: 'heating_system_type_2', 7.0: 'heating_system_type_7', 20.0: 'heating_system_type_20'}, inplace=True)
-    # adding dummy df to original df
-    df = pd.concat([df, dummy_df], axis = 1)
-    # dropping column dummy data is based on
-    df.drop(columns=['heatingorsystemtypeid'] , inplace = True)
-    # returning df
+    # create df with dummy columns included (removes dummy source columns)
+    dummy_df = pd.get_dummies(df, columns=['buildingqualitytypeid', 'heatingorsystemtypeid', 'propertylandusetypeid'])
+
+    # filtering for dummy column name
+    dummy_cols = [col for col in dummy_df if 'id_' in col]
+
+    # filtering out non-dummy columns
+    dummy_df = dummy_df[dummy_cols]
+
+    # concat with original df so source columns for dummy columns can be kept
+    df = pd.concat([df, dummy_df], axis = 1 )
+
+    return df
+
+def column_sort_rename(df):
+    """
+    Accepts DF. Returns with columns sorted in new order.
+    """
+    df = df[['bathroomcnt', 'bedroomcnt',
+       'calculatedfinishedsquarefeet',  'latitude', 'longitude',
+       'lotsizesquarefeet',  'yearbuilt',
+       'taxvaluedollarcnt', 'buildingqualitytypeid', 'buildingqualitytypeid_1',
+       'buildingqualitytypeid_3', 'buildingqualitytypeid_4',
+       'buildingqualitytypeid_5', 'buildingqualitytypeid_6',
+       'buildingqualitytypeid_7', 'buildingqualitytypeid_8',
+       'buildingqualitytypeid_9', 'buildingqualitytypeid_10',
+       'buildingqualitytypeid_11', 'buildingqualitytypeid_12',
+       'heatingorsystemtypeid','heatingorsystemtypeid_2', 'heatingorsystemtypeid_7',
+       'heatingorsystemtypeid_20', 'propertylandusetypeid', 'propertylandusetypeid_31',
+       'propertylandusetypeid_246', 'propertylandusetypeid_247',
+       'propertylandusetypeid_260', 'propertylandusetypeid_261',
+       'propertylandusetypeid_264', 'propertylandusetypeid_266',
+       'propertylandusetypeid_267', 'propertylandusetypeid_269', 'logerror']]
+
+    df = df.rename(columns={'bathroomcnt': 'bathroom_count', 'bedroomcnt' : 'bedroom_count', 'calculatedfinishedsquarefeet' : 'property_sqft',
+    'buildingqualitytypeid' : 'building_quality_type_id', 'lotsizesquarefeet' : 'lotsize_sqft', 'yearbuilt' : 'year_built',
+    'taxvaluedollarcnt' : 'tax_dollar_value', 'heatingorsystemtypeid' : 'heating_system_type_id', 
+    'propertylandusetypeid': 'property_land_use_type_id', 'logerror' : 'log_error'})
+
     return df
 
 def split_data(df):
@@ -113,6 +160,57 @@ def split_data(df):
     # return split data frames
     return train, validate, test
 
+def data_scaler(train, validate, test):
+    """
+    Accepts 3 dataframes: train, validate, test. Returns dataframes with non-categorical numerical columns scaled.
+    """
+    # copying passed dataframes so we don't alter the originals
+    # we will need both scaled and unscaled data in our project
+    train_scaled = train.copy()
+    validate_scaled = validate.copy()
+    test_scaled = test.copy()
+
+    # creating scaler object
+    scaler = sklearn.preprocessing.MinMaxScaler()
+
+    # columns to scale
+    col_to_scale = ['bathroom_count', 'bedroom_count', 'property_sqft', 'latitude', 'longitude', 
+    'lotsize_sqft', 'year_built', 'tax_dollar_value']
+
+    # fitting scaler to train column and scaling after
+    train_scaled[col_to_scale] = scaler.fit_transform(train[col_to_scale])
+
+    # scaling data in dataframes
+    validate_scaled[col_to_scale] = scaler.transform(validate[col_to_scale])
+    test_scaled[col_to_scale] = scaler.transform(test[col_to_scale])
+    
+    # return data frames
+    return train_scaled, validate_scaled, test_scaled
+
+def final_prep():
+    """
+    Accepts DF. Performs all changes outlined in prep phase and returns scaled and unscaled versions of 
+    train, validate, and test samples (6 in total).
+    """
+    # Acquiring data
+    df = get_zillow_data()
+
+    # Preparing data with changes outlined in prepare section of notebook
+    drop_missing_columns(df)
+    drop_selected_columns(df)
+    df.dropna(inplace = True)
+    df = d_type_convert(df)
+    df = zillow_dummy(df)
+    df = column_sort_rename(df)
+    train, validate, test = split_data(df)
+    train_scaled, validate_scaled, test_scaled = data_scaler(train, validate, test)
+
+    # returning DFs
+    return train, validate, test, train_scaled, validate_scaled, test_scaled
+
+####### FUNCTIONS BELOW CAN BE USED TO IDENTIFY AND REMOVE OUTLIERS #######
+####### NO LONGER USED IN PROJECT #######
+    
 def upper_outliers(s, k):
     '''
     Accepts series and cutoff value.
@@ -133,7 +231,8 @@ def upper_outliers(s, k):
 
 def add_upper_outlier_columns(df, k):
     '''
-    Accepts dataframe and cutoff value. Returns datframe with a new column containing upper outlier data for every numeric column.
+    Accepts dataframe and cutoff value. 
+    Returns datframe with a new column containing upper outlier data for every numeric column.
     '''
     # iterate through numeric data type columns
     for col in df.select_dtypes('number'):
@@ -144,127 +243,63 @@ def add_upper_outlier_columns(df, k):
     # return df
     return df
 
-def upper_outlier_data_print(df):
+# creating functions to identify upper outliers and show how far below the lower bound they are
+
+def lower_outliers(s, k):
+    '''
+    Accepts series and cutoff value.
+    If a value in the series is an lower outlier, it returns a number that represents how far above the value is from the lower bound
+    or 0 if the number is not an outlier.
+    '''
+    # creating 2 variables that represent the 1st and 3rd quantile of the given series
+    q1, q3 = s.quantile([.25, .75])
+
+    # calculating IQR
+    iqr = q3 - q1
+
+    # calculating lower bound
+    lower_bound = q1 - k * iqr
+
+    # returning series 
+    return s.apply(lambda x: max([lower_bound - x, 0]))
+
+def add_lower_outlier_columns(df, k):
+    '''
+    Accepts dataframe and cutoff value. Returns datframe with a new column containing lower outlier data for every numeric column.
+    '''
+    # iterate through numeric data type columns
+    for col in df.select_dtypes('number'):
+        if col.endswith('_upper_outliers') == False:
+
+            # create column that contains values produced by lower_outliers function
+            df[col + '_lower_outliers'] = lower_outliers(df[col], k)
+
+    # return df
+    return df
+
+def outlier_remover(df):
     """
-    Accepts dataframe. Returns .describe info for every column ending in "upper_outliers". To be used after add_upper_outlier_columns function.
+    Accepts dataframe. Drops any row with a value > 0 in a column ending in "_outliers". 
     """
-    # create list of column names that end with "_upper_outliers"
-    upper_outlier_cols = [col for col in df if col.endswith('_upper_outliers')]
+    # create list of column names that end with "_outliers"
+    outlier_cols = [col for col in df if col.endswith('_outliers')]
     
     # iterate through column name list
-    for col in upper_outlier_cols:
-        
-        # print .describe info for each column from list
-        print('~~~\n' + col)
-        data = df[col][df[col] > 0]
-        print(data.describe())
+    for col in outlier_cols:
+        df.drop(df[df[col] > 0].index, inplace = True) 
+    return df
 
-def outlier_remover(train):
+def handle_outliers(df, k):
     """
-    Accepts a dataframe. Drops all rows with upper outliers identified by upper_outliers function.
+    Accepts DF and cutoff value. Identifies and removes all outliers with respect to given cutoff value. 
+    Removes all "outliers" columns created by function.
     """
-    # dropping columns where a value greater than 0 is found in the outlier column
-    train.drop(train[train['bathroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['bedroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['calculatedfinishedsquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['lotsizesquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxvaluedollarcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxamount_upper_outliers'] > 0].index, inplace = True) 
-    # returning dataframe
-    return train
-
-def data_scaler(train, validate, test):
-    """
-    Accepts 3 dataframes: train, validate, test. Returns dataframes with non-categorical numerical columns scaled.
-    """
-    # copying passed dataframes so we don't alter the originals
-    # we will need both scaled and unscaled data in our project
-    train_scaled = train.copy()
-    validate_scaled = validate.copy()
-    test_scaled = test.copy()
-
-    # creating scaler object
-    scaler = sklearn.preprocessing.MinMaxScaler()
-
-    # fitting scaler to train column and scaling after
-    train_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.fit_transform(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
-
-    # scaling data in dataframes
-    validate_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.transform(validate[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
-    test_scaled[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']] = scaler.transform(test[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount']])
+    # passing given df and cutoff value to functions that will add "upper outlier" and "lower outlier" columns
+    add_upper_outlier_columns(df, k)
+    add_lower_outlier_columns(df, k)
     
-    # return data frames
-    return train_scaled, validate_scaled, test_scaled
+    # passing df to function that removes outliers identified by previous functions
+    outlier_remover(df)
 
-def rfe_ranker(train):
-    """
-    Accepts dataframe. Uses Recursive Feature Elimination to rank the given df's features in order of their usefulness in
-    predicting logerror with a linear regression model.
-    """
-    # creating linear regression object
-    lm = LinearRegression()
-
-    # fitting linear regression model to features 
-    lm.fit(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']], train['logerror'])
-
-    # creating recursive feature elimination object and specifying to only rank 1 feature as best
-    rfe = RFE(lm, 1)
-
-    # using rfe object to transform features 
-    x_rfe = rfe.fit_transform(train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']], train['logerror'])
-
-    # creating mask of selected feature
-    feature_mask = rfe.support_
-
-    # creating train df for rfe object 
-    rfe_train = train[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet', 'lotsizesquarefeet', 'taxvaluedollarcnt', 'taxamount', 'heating_system_type_2', 'heating_system_type_7', 'heating_system_type_20']]
-
-    # creating list of the top features per rfe
-    rfe_features = rfe_train.loc[:,feature_mask].columns.tolist()
-
-    # creating ranked list 
-    feature_ranks = rfe.ranking_
-
-    # creating list of feature names
-    feature_names = rfe_train.columns.tolist()
-
-    # create df that contains all features and their ranks
-    rfe_ranks_df = pd.DataFrame({'Feature': feature_names, 'Rank': feature_ranks})
-
-    # return df sorted by rank
-    return rfe_ranks_df.sort_values('Rank')
-
-def rfe_column_dropper(train, validate, test, train_scaled, validate_scaled, test_scaled):
-    """
-    Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them only the 3 features selected based on RFE and logerror.
-    """
-    # listing features we're keeping from RFE ranking
-    kept_features = ['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
-
-    # assigning kept features our datasets
-    train_scaled = train_scaled[kept_features]
-    validate_scaled = validate_scaled[kept_features]
-    test_scaled = test_scaled[kept_features]
-
-    train = train[kept_features]
-    validate = validate[kept_features]
-    test = test[kept_features]
-    
-    # returning data frames
-    return train, validate, test, train_scaled, validate_scaled, test_scaled
-
-def column_renamer(unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test):
-    """
-    Accepts 3 unscaled and 3 scaled dataframe, 6 totals. Returns them will all columns renamed.
-    """
-    # Renaming columns in given dataframe
-    unscaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-
-    scaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-
-    # Returning dataframes
-    return unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test
+    # returning df
+    return df

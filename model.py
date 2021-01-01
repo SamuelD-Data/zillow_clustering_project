@@ -41,8 +41,8 @@ def model_1_function(train, predict):
     train_df = train.copy()
     
     # creating df's with the two features we want to cluster for each passed df
-    X = cluster_df[['bedroom_count','property_sq_ft']]
-    train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
+    X = cluster_df[['tax_dollar_value','property_sqft']]
+    train_cluster_features = train_df[['tax_dollar_value','property_sqft']]
 
     # creating kmeans object and fitting to train data
     kmeans = KMeans(n_clusters = 3, random_state=123)
@@ -69,14 +69,14 @@ def model_1_function(train, predict):
     train_df.drop(columns=['cluster'] , inplace = True)
     
     # select features for model 1 predictions
-    Xfeat = cluster_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']]
+    Xfeat = cluster_df[['bedroom_count', 'bathroom_count', 'cluster_0', 'cluster_1', 'cluster_2']]
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
+    lm.fit(train_df[['bedroom_count', 'bathroom_count','cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
 
     # predict logerror on predict DF with model 1
     yfeat['model_1_pred'] = lm.predict(Xfeat)
@@ -89,23 +89,52 @@ def model_2_function(train, predict):
     """
     Accepts 2 dataframes. 
     Train is the train df that model 2 will fit to. 
-    Predict is the df you would like model 2 to predict the log_error of after fitting to train.
-    Prints RMSE of log_error predictions vs actual log_error.
+    Predict is the DF you would like model 2 to predict the log_error of after fitting to train.
+    Prints RMSE of log_error predictions vs actual log_error on predict DF.
     """
-    # making copy of train so we don't alter the original
-    predict_df = predict.copy()
+    # making copies of train so we don't alter the original
+    cluster_df = predict.copy()
+    train_df = train.copy()
+    
+    # creating df's with the two features we want to cluster for each passed df
+    X = cluster_df[['bedroom_count','property_sqft']]
+    train_cluster_features = train_df[['bedroom_count','property_sqft']]
 
-    # select features for model 2 predictions
-    Xfeat = predict_df[['bedroom_count', 'property_sq_ft', 'tax_dollar_value']]
-    yfeat = pd.DataFrame(predict_df['log_error'])
+    # creating kmeans object and fitting to train data
+    kmeans = KMeans(n_clusters = 3, random_state=123)
+    kmeans.fit(train_cluster_features)
+
+    # creating clusters and adding as columns
+    cluster_df['cluster'] = kmeans.predict(X)
+    train_df['cluster'] = kmeans.predict(train_cluster_features)
+    
+    # creating dummy dfs using cluster columns
+    dummy_df = pd.get_dummies(cluster_df['cluster'])
+    train_dummy_df = pd.get_dummies(train_df['cluster'])
+    
+    # renaming dummy columns 
+    dummy_df.rename(columns = {0: 'cluster_0', 1: 'cluster_1', 2: 'cluster_2'}, inplace=True)
+    train_dummy_df.rename(columns = {0: 'cluster_0', 1: 'cluster_1', 2: 'cluster_2'}, inplace=True)
+    
+    # adding dummy DFs to original DFs
+    cluster_df = pd.concat([cluster_df, dummy_df], axis = 1)
+    train_df = pd.concat([train_df, train_dummy_df], axis = 1)
+    
+    # dropping column dummy data is based on
+    cluster_df.drop(columns=['cluster'] , inplace = True)
+    train_df.drop(columns=['cluster'] , inplace = True)
+    
+    # select features for model 1 predictions
+    Xfeat = cluster_df[['tax_dollar_value', 'bathroom_count', 'cluster_0', 'cluster_1', 'cluster_2']]
+    yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
     lm = LinearRegression(normalize=True)
 
     # fitting model to train data
-    lm.fit(train[['bedroom_count', 'property_sq_ft', 'tax_dollar_value']], train['log_error'])
+    lm.fit(train_df[['tax_dollar_value', 'bathroom_count', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
 
-    # predict logerror with model 2
+    # predict logerror on predict DF with model 2
     yfeat['model_2_pred'] = lm.predict(Xfeat)
 
     # evaluate RMSE and print results
@@ -124,8 +153,8 @@ def model_3_function(train, predict):
     train_df = train.copy()
     
     # creating df's with the two features we want to cluster for each passed df
-    X = cluster_df[['bedroom_count','property_sq_ft']]
-    train_cluster_features = train_df[['bedroom_count','property_sq_ft']]
+    X = cluster_df[['bedroom_count','property_sqft']]
+    train_cluster_features = train_df[['bedroom_count','property_sqft']]
 
     # creating kmeans object and fitting to predict data
     kmeans = KMeans(n_clusters = 3, random_state=123)
@@ -167,3 +196,30 @@ def model_3_function(train, predict):
     # evaluate RMSE and print results
     rmse_m3 = round(mean_squared_error(yfeat.log_error, yfeat.model_3_pred)**(1/2),6)
     print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m3)
+
+def model_4_function(train, predict):
+    """
+    Accepts 2 dataframes. 
+    Train is the train df that model 4 will fit to. 
+    Predict is the df you would like model 4 to predict the log_error of after fitting to train.
+    Prints RMSE of log_error predictions vs actual log_error.
+    """
+    # making copy of train so we don't alter the original
+    predict_df = predict.copy()
+
+    # select features for model 2 predictions
+    Xfeat = predict_df[['bedroom_count', 'bathroom_count', 'property_sqft', 'tax_dollar_value']]
+    yfeat = pd.DataFrame(predict_df['log_error'])
+
+    # creating linear regression object
+    lm = LinearRegression(normalize=True)
+
+    # fitting model to train data
+    lm.fit(train[['bedroom_count', 'bathroom_count', 'property_sqft', 'tax_dollar_value']], train['log_error'])
+
+    # predict logerror with model 2
+    yfeat['model_4_pred'] = lm.predict(Xfeat)
+
+    # evaluate RMSE and print results
+    rmse_m4 = round(mean_squared_error(yfeat.log_error, yfeat.model_4_pred)**(1/2),6)
+    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m4)
