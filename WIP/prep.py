@@ -1,4 +1,3 @@
-# import modules needed to run functions
 # imports
 from acquire import get_zillow_data
 from sklearn.preprocessing import MinMaxScaler
@@ -82,6 +81,29 @@ def tax_columns_calculator(df):
     # comparing taxvaluedollarcnt to our manually calculated column and finding the average % of rows where the values matched
     print((tax_eval_df.taxvaluedollarcnt_test == tax_eval_df.taxvaluedollarcnt).mean())
 
+def d_type_convert(df):
+    """
+    Accepts DF. Converts data types of various columns to integer.
+    """
+    
+    # creating dictionary to specify data type changes
+    convert_dict = {'bathroomcnt': int, 
+                'bedroomcnt': int,
+                'buildingqualitytypeid': int,
+                'heatingorsystemtypeid': int,
+                'latitude': int,
+                'longitude': int,
+                'lotsizesquarefeet': int,
+                'propertylandusetypeid': int,
+                'yearbuilt': int,
+               } 
+  
+    # passing dictionary to perform dtype updates
+    df = df.astype(convert_dict) 
+    
+    # returning df
+    return df
+
 def zillow_dummy(df):
     """
     Accepts a data frame, returns it with boolean columns for each categorical column's values.
@@ -138,6 +160,57 @@ def split_data(df):
     # return split data frames
     return train, validate, test
 
+def data_scaler(train, validate, test):
+    """
+    Accepts 3 dataframes: train, validate, test. Returns dataframes with non-categorical numerical columns scaled.
+    """
+    # copying passed dataframes so we don't alter the originals
+    # we will need both scaled and unscaled data in our project
+    train_scaled = train.copy()
+    validate_scaled = validate.copy()
+    test_scaled = test.copy()
+
+    # creating scaler object
+    scaler = sklearn.preprocessing.MinMaxScaler()
+
+    # columns to scale
+    col_to_scale = ['bathroom_count', 'bedroom_count', 'property_sqft', 'latitude', 'longitude', 
+    'lotsize_sqft', 'year_built', 'tax_dollar_value']
+
+    # fitting scaler to train column and scaling after
+    train_scaled[col_to_scale] = scaler.fit_transform(train[col_to_scale])
+
+    # scaling data in dataframes
+    validate_scaled[col_to_scale] = scaler.transform(validate[col_to_scale])
+    test_scaled[col_to_scale] = scaler.transform(test[col_to_scale])
+    
+    # return data frames
+    return train_scaled, validate_scaled, test_scaled
+
+def final_prep():
+    """
+    Accepts DF. Performs all changes outlined in prep phase and returns scaled and unscaled versions of 
+    train, validate, and test samples (6 in total).
+    """
+    # Acquiring data
+    df = get_zillow_data()
+
+    # Preparing data with changes outlined in prepare section of notebook
+    drop_missing_columns(df)
+    drop_selected_columns(df)
+    df.dropna(inplace = True)
+    df = d_type_convert(df)
+    df = zillow_dummy(df)
+    df = column_sort_rename(df)
+    train, validate, test = split_data(df)
+    train_scaled, validate_scaled, test_scaled = data_scaler(train, validate, test)
+
+    # returning DFs
+    return train, validate, test, train_scaled, validate_scaled, test_scaled
+
+####### FUNCTIONS BELOW CAN BE USED TO IDENTIFY AND REMOVE OUTLIERS #######
+####### NO LONGER USED IN PROJECT #######
+    
 def upper_outliers(s, k):
     '''
     Accepts series and cutoff value.
@@ -230,121 +303,3 @@ def handle_outliers(df, k):
 
     # returning df
     return df
-
-def data_scaler(train, validate, test):
-    """
-    Accepts 3 dataframes: train, validate, test. Returns dataframes with non-categorical numerical columns scaled.
-    """
-    # copying passed dataframes so we don't alter the originals
-    # we will need both scaled and unscaled data in our project
-    train_scaled = train.copy()
-    validate_scaled = validate.copy()
-    test_scaled = test.copy()
-
-    # creating scaler object
-    scaler = sklearn.preprocessing.MinMaxScaler()
-
-    # columns to scale
-    col_to_scale = ['bathroom_count', 'bedroom_count', 'property_sqft', 'latitude', 'longitude', 
-    'lotsize_sqft', 'year_built', 'tax_dollar_value']
-
-    # fitting scaler to train column and scaling after
-    train_scaled[col_to_scale] = scaler.fit_transform(train[col_to_scale])
-
-    # scaling data in dataframes
-    validate_scaled[col_to_scale] = scaler.transform(validate[col_to_scale])
-    test_scaled[col_to_scale] = scaler.transform(test[col_to_scale])
-    
-    # return data frames
-    return train_scaled, validate_scaled, test_scaled
-
-def final_prep():
-    """
-    No arguments needed. Function returns train, validate and test Zillow datasets ready for exploration with all changes from prep phase. 
-    """
-    # create variable that will hold DF for easy access to data
-    df = get_zillow_data()
-    
-    # filter dataset to only keep best RFE ranked columns
-    df = df[['bathroomcnt', 'bedroomcnt', 'calculatedfinishedsquarefeet','lotsizesquarefeet', 'taxvaluedollarcnt', 'heatingorsystemtypeid', 'logerror']]
-    
-    # drop all rows with missing values
-    df.dropna(inplace = True)
-    
-    # creating dummy df using heatingorsystemtypeid column
-    dummy_df = pd.get_dummies(df['heatingorsystemtypeid'])
-    
-    # renaming dummy columns 
-    dummy_df.rename(columns = {2.0: 'heating_system_type_2', 7.0: 'heating_system_type_7', 20.0: 'heating_system_type_20'}, inplace=True)
-    
-    # adding dummy df to original df
-    df = pd.concat([df, dummy_df], axis = 1)
-    
-    # dropping column dummy data is based on
-    df.drop(columns=['heatingorsystemtypeid'] , inplace = True)
-    
-    # splitting data
-    train_validate, test = train_test_split(df, test_size=.2, random_state=123)
-    train, validate = train_test_split(train_validate, test_size=.3, random_state=123)
-    
-    # iterate through numeric data type columns
-    for col in train.select_dtypes('number'):
-
-        # create column that contains values produced by upper_outliers function
-        train[col + '_upper_outliers'] = upper_outliers(train[col], 6)
-    
-    # dropping columns where a value greater than 0 is found in the outlier column
-    train.drop(train[train['bathroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['bedroomcnt_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['calculatedfinishedsquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['lotsizesquarefeet_upper_outliers'] > 0].index, inplace = True) 
-    train.drop(train[train['taxvaluedollarcnt_upper_outliers'] > 0].index, inplace = True) 
-    
-    # creating list of outlier column names
-    outlier_cols = [col for col in train if col.endswith('_outliers')]
-
-    # dropping each column from list of outlier columns
-    train = train.drop(columns = outlier_cols)
-
-    # creating copies of each df so we can scale one set and leave another set unscale
-    unscaled_train = train.copy()
-    unscaled_validate = validate.copy()
-    unscaled_test = test.copy()
-
-    scaled_train = train.copy()
-    scaled_validate = validate.copy()
-    scaled_test = test.copy()
-
-    # creating scaler object
-    scaler = sklearn.preprocessing.MinMaxScaler()
-
-    # fitting scaler to train column and transforming it 
-    scaled_train[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.fit_transform(scaled_train[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
-
-    # scaling data in other dataframes
-    scaled_validate[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']] = scaler.transform(scaled_validate[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
-    scaled_test[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']]= scaler.transform(scaled_test[['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt']])
-
-    # listing features we're keeping from RFE ranking
-    kept_features = ['bedroomcnt', 'calculatedfinishedsquarefeet', 'taxvaluedollarcnt', 'logerror']
-
-    # assigning kept features our datasets
-    unscaled_train = unscaled_train[kept_features]
-    unscaled_validate = unscaled_validate[kept_features]
-    unscaled_test = unscaled_test[kept_features]
-
-    scaled_train = scaled_train[kept_features]
-    scaled_validate = scaled_validate[kept_features]
-    scaled_test = scaled_test[kept_features]
-    
-    # Renaming columns in given dataframe
-    unscaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    unscaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-
-    scaled_train.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_validate.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    scaled_test.rename(columns = {'bedroomcnt': 'bedroom_count', 'calculatedfinishedsquarefeet': 'property_sq_ft', 'taxvaluedollarcnt': 'tax_dollar_value', 'logerror': 'log_error'}, inplace=True)
-    
-    # returning scaled and unscaled datasets
-    return unscaled_train, unscaled_validate, unscaled_test, scaled_train, scaled_validate, scaled_test
