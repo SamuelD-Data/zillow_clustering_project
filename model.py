@@ -27,7 +27,7 @@ def baseline_function(train):
 
     # evaluate rmse and print results
     rmse_train_bl = round(mean_squared_error(y_train.log_error, y_train.baseline_pred)**(1/2),6)
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_train_bl)
+    print("Baseline RMSE (Train): ", rmse_train_bl)
 
 def model_1_function(train, predict):
     """
@@ -83,7 +83,7 @@ def model_1_function(train, predict):
 
     # evaluate RMSE and print results
     rmse_m1 = round(mean_squared_error(yfeat.log_error, yfeat.model_1_pred)**(1/2),6)
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m1)
+    print("Model 1 RMSE: ", rmse_m1)
 
 def model_2_function(train, predict):
     """
@@ -139,7 +139,7 @@ def model_2_function(train, predict):
 
     # evaluate RMSE and print results
     rmse_m2 = round(mean_squared_error(yfeat.log_error, yfeat.model_2_pred)**(1/2),6)
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m2)
+    print("Model 2 RMSE: ", rmse_m2)
 
 def model_3_function(train, predict):
     """
@@ -195,7 +195,7 @@ def model_3_function(train, predict):
 
     # evaluate RMSE and print results
     rmse_m3 = round(mean_squared_error(yfeat.log_error, yfeat.model_3_pred)**(1/2),6)
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m3)
+    print("Model 3 RMSE: ", rmse_m3)
 
 def model_4_function(train, predict):
     """
@@ -222,4 +222,4 @@ def model_4_function(train, predict):
 
     # evaluate RMSE and print results
     rmse_m4 = round(mean_squared_error(yfeat.log_error, yfeat.model_4_pred)**(1/2),6)
-    print("RMSE for OLS using LinearRegression\nTraining/In-Sample: ", rmse_m4)
+    print("Model 4 RMSE: ", rmse_m4)
