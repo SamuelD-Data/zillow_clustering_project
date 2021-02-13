@@ -11,9 +11,8 @@ Zillow serves the full lifecycle of owning and living in a home: buying, selling
 
 ### Goals
 
-- Improve original estimate of the log error by using clustering methodologies.
-
-- Create a model that predicts log error 
+- Identify variables that drive log errors
+- Create a model that effectively predicts log errors 
 
 I will also deliver the following:
 
