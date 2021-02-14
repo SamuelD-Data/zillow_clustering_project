@@ -124,7 +124,7 @@ def zillow_dummy(df):
 
 def column_sort_rename(df):
     """
-    Accepts DF. Returns with columns sorted in new order.
+    Accepts DF. Returns with columns renamed sorted in new order.
     """
     df = df[['bathroomcnt', 'bedroomcnt',
        'calculatedfinishedsquarefeet',  'latitude', 'longitude',

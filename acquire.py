@@ -4,10 +4,12 @@ import pandas as pd
 import numpy as np
 import os
 
+# parameters are for database name, user name, host name, password
 def get_connection(db, user=user, host=host, password=password):
     """
     Function returns a URL string that can be used to connect to the data science database.
     """
+    # returns string that can be used to connect to codeup database
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 
