@@ -29,12 +29,13 @@ def baseline_function(train):
     rmse_train_bl = round(mean_squared_error(y_train.log_error, y_train.baseline_pred)**(1/2),6)
     print("Baseline RMSE (Train): ", rmse_train_bl)
 
-def model_1_function(train, predict):
+def model_1_function(train, predict, hparams):
     """
-    Accepts 2 dataframes. 
+    Accepts 2 dataframes and string of hyperparameter arguments. 
     Train is the train df that model 1 will fit to. 
-    Predict is the DF you would like model 1 to predict the log_error of after fitting to train.
-    Prints RMSE of log_error predictions vs actual log_error on predict DF.
+    Predict is the df you would like model 1 to predict the log_error of after fitting to train.
+    Hparams is the string of hyperparameter settings.
+    Prints RMSE of log_error predictions vs actual log_error.
     """
     # making copies of train so we don't alter the original
     cluster_df = predict.copy()
@@ -73,7 +74,7 @@ def model_1_function(train, predict):
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
-    lm = LinearRegression(normalize=True)
+    lm = LinearRegression(hparams)
 
     # fitting model to train data
     lm.fit(train_df[['bedroom_count', 'bathroom_count','cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
@@ -85,12 +86,13 @@ def model_1_function(train, predict):
     rmse_m1 = round(mean_squared_error(yfeat.log_error, yfeat.model_1_pred)**(1/2),6)
     print("Model 1 RMSE: ", rmse_m1)
 
-def model_2_function(train, predict):
+def model_2_function(train, predict, hparams):
     """
-    Accepts 2 dataframes. 
+    Accepts 2 dataframes and string of hyperparameter arguments. 
     Train is the train df that model 2 will fit to. 
-    Predict is the DF you would like model 2 to predict the log_error of after fitting to train.
-    Prints RMSE of log_error predictions vs actual log_error on predict DF.
+    Predict is the df you would like model 2 to predict the log_error of after fitting to train.
+    Hparams is the string of hyperparameter settings.
+    Prints RMSE of log_error predictions vs actual log_error.
     """
     # making copies of train so we don't alter the original
     cluster_df = predict.copy()
@@ -129,7 +131,7 @@ def model_2_function(train, predict):
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
-    lm = LinearRegression(normalize=True)
+    lm = LinearRegression(hparams)
 
     # fitting model to train data
     lm.fit(train_df[['tax_dollar_value', 'bathroom_count', 'cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
@@ -141,12 +143,13 @@ def model_2_function(train, predict):
     rmse_m2 = round(mean_squared_error(yfeat.log_error, yfeat.model_2_pred)**(1/2),6)
     print("Model 2 RMSE: ", rmse_m2)
 
-def model_3_function(train, predict):
+def model_3_function(train, predict, hparams):
     """
-    Accepts 2 dataframes. 
+    Accepts 2 dataframes and string of hyperparameter arguments. 
     Train is the train df that model 3 will fit to. 
-    Predict is the DF you would like model 3 to predict the log_error of after fitting to train.
-    Prints RMSE of log_error predictions vs actual log_error on predict DF.
+    Predict is the df you would like model 3 to predict the log_error of after fitting to train.
+    Hparams is the string of hyperparameter settings.
+    Prints RMSE of log_error predictions vs actual log_error.
     """
     # making copies of train so we don't alter the original
     cluster_df = predict.copy()
@@ -185,7 +188,7 @@ def model_3_function(train, predict):
     yfeat = pd.DataFrame(cluster_df['log_error'])
 
     # creating linear regression object
-    lm = LinearRegression(normalize=True)
+    lm = LinearRegression(hparams)
 
     # fitting model to train data
     lm.fit(train_df[['cluster_0', 'cluster_1', 'cluster_2']], train_df['log_error'])
@@ -197,11 +200,12 @@ def model_3_function(train, predict):
     rmse_m3 = round(mean_squared_error(yfeat.log_error, yfeat.model_3_pred)**(1/2),6)
     print("Model 3 RMSE: ", rmse_m3)
 
-def model_4_function(train, predict):
+def model_4_function(train, predict, hparams):
     """
-    Accepts 2 dataframes. 
+    Accepts 2 dataframes and string of hyperparameter arguments. 
     Train is the train df that model 4 will fit to. 
     Predict is the df you would like model 4 to predict the log_error of after fitting to train.
+    Hparams is the string of hyperparameter settings.
     Prints RMSE of log_error predictions vs actual log_error.
     """
     # making copy of train so we don't alter the original
@@ -212,7 +216,7 @@ def model_4_function(train, predict):
     yfeat = pd.DataFrame(predict_df['log_error'])
 
     # creating linear regression object
-    lm = LinearRegression(normalize=True)
+    lm = LinearRegression(hparams)
 
     # fitting model to train data
     lm.fit(train[['bedroom_count', 'bathroom_count', 'property_sqft', 'tax_dollar_value']], train['log_error'])
