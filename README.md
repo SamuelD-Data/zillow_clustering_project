@@ -91,6 +91,8 @@ year_built: Year property was built
 
 2) Prepare
 - Prepare data as needed for exploration including but not limited to
+    - Dropping duplicate rows if any are present 
+        - Each row should have a unique ID so duplicate rows are erroneous
     - Addressing null values
         - Impute if 
             - reasonable given turnaround timeframe
